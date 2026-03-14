@@ -106,6 +106,7 @@ function QualityGroup({
               }`}
               onMouseEnter={() => onHoverSegment(s.id)}
               onMouseLeave={() => onHoverSegment(null)}
+              onClick={() => onHoverSegment(hoveredSegmentId === s.id ? null : s.id)}
               title={`${s.name}: ${rating}${q?.overlaps.length ? ` (overlaps: ${q.overlaps.join(', ')})` : ''}`}
             >
               <span className="text-gray-400">{s.shortName}</span>

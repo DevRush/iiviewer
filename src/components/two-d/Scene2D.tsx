@@ -31,12 +31,15 @@ function CameraController({
 }) {
   const targetPos = useRef(new THREE.Vector3(0, 0, 50))
 
-  useFrame(({ camera }) => {
+  useFrame(({ camera, size }) => {
     const newPos = anglesToPosition(raoLao, cranialCaudal, 50)
     targetPos.current.lerp(newPos, 0.15)
     camera.position.copy(targetPos.current)
     camera.lookAt(0, 0, 0)
-    ;(camera as THREE.OrthographicCamera).zoom = zoom
+    // Scale zoom to viewport — calibrated for 500px panels on desktop
+    const minDim = Math.min(size.width, size.height)
+    const scale = Math.min(minDim / 500, 1)
+    ;(camera as THREE.OrthographicCamera).zoom = zoom * scale
     camera.updateProjectionMatrix()
   })
 
@@ -72,6 +75,7 @@ export function Scene2D({
     >
       <Canvas
         orthographic
+        dpr={[1, 2]}
         camera={{
           zoom: 120,
           near: 0.1,

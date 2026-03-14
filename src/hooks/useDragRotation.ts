@@ -52,6 +52,7 @@ export function useDragRotation({
     if (!el) return
 
     el.style.cursor = 'grab'
+    el.style.touchAction = 'none'
     el.addEventListener('pointerdown', onPointerDown)
     el.addEventListener('pointermove', onPointerMove)
     el.addEventListener('pointerup', onPointerUp)

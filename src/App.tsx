@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, lazy, Suspense } from 'react'
 import { useAngleState } from '@/hooks/useAngleState'
 import { useDragRotation } from '@/hooks/useDragRotation'
 import { useArteryData } from '@/hooks/useArteryData'
@@ -11,8 +11,9 @@ import { DominanceToggle } from '@/components/controls/DominanceToggle'
 import { ViewModeToggle } from '@/components/controls/ViewModeToggle'
 import { PresetButtons } from '@/components/controls/PresetButtons'
 import { QualityPanel } from '@/components/quality/QualityPanel'
-import { TeachingPanel } from '@/components/teaching/TeachingPanel'
-import { QuizPanel } from '@/components/teaching/QuizPanel'
+
+const TeachingPanel = lazy(() => import('@/components/teaching/TeachingPanel').then(m => ({ default: m.TeachingPanel })))
+const QuizPanel = lazy(() => import('@/components/teaching/QuizPanel').then(m => ({ default: m.QuizPanel })))
 import type { DominanceType, ViewMode, AppMode, CoronarySystem, PresetView } from '@/types/angles'
 
 export default function App() {
@@ -45,7 +46,7 @@ export default function App() {
   const hasSidePanel = appMode !== 'explore'
 
   return (
-    <div className="h-screen flex flex-col bg-gray-950 text-white">
+    <div className="min-h-screen lg:h-screen flex flex-col bg-gray-950 text-white lg:overflow-hidden">
       {/* Header */}
       <header className="flex items-center justify-between px-4 py-2 border-b border-gray-800/50 shrink-0">
         <div className="flex items-center gap-3">
@@ -81,13 +82,13 @@ export default function App() {
       </header>
 
       {/* Main panels */}
-      <div className={`flex-1 grid min-h-0 ${
+      <div className={`grid lg:flex-1 lg:min-h-0 ${
         hasSidePanel
           ? 'grid-cols-1 lg:grid-cols-[1fr_1fr_320px]'
           : 'grid-cols-1 lg:grid-cols-2'
       }`}>
         {/* 3D Panel */}
-        <div ref={drag3D.containerRef} className="relative min-h-0 border-r border-gray-800/30">
+        <div ref={drag3D.containerRef} className="relative h-[30vh] lg:h-auto min-h-0 border-r border-gray-800/30">
           <div className="absolute top-2 left-2 z-10 text-[10px] text-gray-600 uppercase tracking-wider bg-gray-950/80 px-2 py-0.5 rounded">
             3D Model
           </div>
@@ -104,7 +105,7 @@ export default function App() {
         </div>
 
         {/* 2D Panel */}
-        <div ref={drag2D.containerRef} className="relative min-h-0 flex items-center justify-center p-2">
+        <div ref={drag2D.containerRef} className="relative h-[30vh] lg:h-auto min-h-0 flex items-center justify-center p-2">
           <div className="absolute top-2 left-2 z-10 text-[10px] text-gray-600 uppercase tracking-wider bg-gray-950/80 px-2 py-0.5 rounded">
             {viewMode === 'fluoroscopy' ? 'Fluoroscopy' : 'Schematic'}
           </div>
@@ -135,19 +136,21 @@ export default function App() {
           />
         </div>
 
-        {/* Teaching / Quiz Panel */}
-        {appMode === 'guided' && (
-          <TeachingPanel
-            raoLao={angles.raoLao}
-            cranialCaudal={angles.cranialCaudal}
-          />
-        )}
-        {appMode === 'quiz' && (
-          <QuizPanel
-            raoLao={angles.raoLao}
-            cranialCaudal={angles.cranialCaudal}
-          />
-        )}
+        {/* Teaching / Quiz Panel (lazy-loaded) */}
+        <Suspense fallback={null}>
+          {appMode === 'guided' && (
+            <TeachingPanel
+              raoLao={angles.raoLao}
+              cranialCaudal={angles.cranialCaudal}
+            />
+          )}
+          {appMode === 'quiz' && (
+            <QuizPanel
+              raoLao={angles.raoLao}
+              cranialCaudal={angles.cranialCaudal}
+            />
+          )}
+        </Suspense>
       </div>
 
       {/* Control Bar */}

@@ -5,7 +5,9 @@
 html, body, #root {
   height: 100%;
   margin: 0;
-  overflow: hidden;
+  overflow-x: hidden;
+  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 input[type="range"] {
@@ -36,4 +38,15 @@ input[type="range"]::-webkit-slider-thumb:hover {
 input[type="range"]::-webkit-slider-thumb:active {
   transform: scale(1.25);
   background: #818cf8;
+}
+
+/* Larger touch targets on coarse pointer devices (phones/tablets) */
+@media (pointer: coarse) {
+  input[type="range"] {
+    height: 10px;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    width: 32px;
+    height: 32px;
+  }
 }

@@ -1,5 +1,6 @@
 import { useRef, Suspense } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
+import { Html } from '@react-three/drei'
 import * as THREE from 'three'
 import { SceneLighting } from './SceneLighting'
 import { HeartGLTF } from './HeartGLTF'
@@ -49,13 +50,18 @@ export function Scene3D({
   return (
     <Canvas
       camera={{ position: [0, 0, 6], fov: 45, near: 0.1, far: 100 }}
+      dpr={[1, 2]}
       gl={{ antialias: true, alpha: true }}
       style={{ background: 'transparent' }}
     >
       <color attach="background" args={['#0a0a12']} />
       <SceneLighting />
       <AngleDrivenCamera raoLao={raoLao} cranialCaudal={cranialCaudal} />
-      <Suspense fallback={null}>
+      <Suspense fallback={
+        <Html center>
+          <div className="text-gray-500 text-xs animate-pulse">Loading model...</div>
+        </Html>
+      }>
         <HeartGLTF
           style="clay"
           hoveredSegmentId={hoveredSegmentId}
