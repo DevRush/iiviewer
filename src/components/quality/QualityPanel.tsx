@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import type { ArterySegment } from '@/types/anatomy'
 import type { SegmentRating } from '@/types/quality'
-import { computeViewQuality } from '@/utils/view-quality'
+import { sampleSegments, gradeSampledSegments } from '@/utils/view-quality'
 
 interface QualityPanelProps {
   raoLao: number
@@ -32,9 +32,12 @@ export function QualityPanel({
   hoveredSegmentId,
   onHoverSegment,
 }: QualityPanelProps) {
+  // Sample the (angle-independent) centrelines only when the segment set changes,
+  // so dragging the angle sliders re-grades without re-evaluating every spline.
+  const sampled = useMemo(() => sampleSegments(segments), [segments])
   const qualities = useMemo(
-    () => computeViewQuality(segments, raoLao, cranialCaudal),
-    [segments, raoLao, cranialCaudal],
+    () => gradeSampledSegments(sampled, raoLao, cranialCaudal),
+    [sampled, raoLao, cranialCaudal],
   )
 
   const qualityMap = useMemo(() => {

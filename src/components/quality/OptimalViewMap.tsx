@@ -35,6 +35,7 @@ function lerp(a: number, b: number, t: number) { return a + (b - a) * t }
  */
 export function OptimalViewMap({ segments, segmentId, raoLao, cranialCaudal, onPick }: OptimalViewMapProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const dpr = Math.min(2, typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1)
 
   // Build the quality grid for the selected segment (recompute only when it changes).
   const grid = useMemo(() => {
@@ -56,21 +57,13 @@ export function OptimalViewMap({ segments, segmentId, raoLao, cranialCaudal, onP
     return { values, best, name: seg.name }
   }, [segments, segmentId])
 
-  // Size the canvas once (changing canvas.width clears it, so don't do it on every draw).
-  useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas) return
-    const dpr = Math.min(2, window.devicePixelRatio || 1)
-    canvas.width = CANVAS_W * dpr
-    canvas.height = CANVAS_H * dpr
-  }, [])
-
+  // Canvas backing-store size is set on the JSX element (below) so it is correct on
+  // the first paint — no blank frame. This effect only draws.
   useEffect(() => {
     const canvas = canvasRef.current
     if (!canvas) return
     const ctx = canvas.getContext('2d')
     if (!ctx) return
-    const dpr = Math.min(2, window.devicePixelRatio || 1)
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
     ctx.clearRect(0, 0, CANVAS_W, CANVAS_H)
 
@@ -127,7 +120,7 @@ export function OptimalViewMap({ segments, segmentId, raoLao, cranialCaudal, onP
     ctx.fillText('RAO · CAU', 2, CANVAS_H - 2)
     ctx.textAlign = 'right'
     ctx.fillText('LAO · CAU', CANVAS_W - 2, CANVAS_H - 2)
-  }, [grid, raoLao, cranialCaudal])
+  }, [grid, raoLao, cranialCaudal, dpr])
 
   const handleClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
     const rect = e.currentTarget.getBoundingClientRect()
@@ -145,9 +138,11 @@ export function OptimalViewMap({ segments, segmentId, raoLao, cranialCaudal, onP
       </div>
       <canvas
         ref={canvasRef}
+        width={CANVAS_W * dpr}
+        height={CANVAS_H * dpr}
         onClick={handleClick}
         style={{ width: CANVAS_W, height: CANVAS_H, borderRadius: 4, cursor: grid ? 'crosshair' : 'default', maxWidth: '100%' }}
-        title="Foreshortening map — green = elongated (ideal), red = foreshortened. ✦ optimal · ＋ current. Click to jump."
+        title="View-quality map — green = ideal view, red = not recommended. ✦ best · ＋ current. Click to jump."
       />
     </div>
   )

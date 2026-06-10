@@ -1,7 +1,10 @@
 import { describe, it, expect } from 'vitest'
-import { computeViewQuality, sampleSegments, foreshorteningAt } from './view-quality'
+import { computeViewQuality, sampleSegments, foreshorteningAt, measureViewGeometry } from './view-quality'
 import { computeCameraBasis } from './carm-math'
+import { interpolateSegmentScore, scoreToRating } from '@/data/quality-matrix'
 import { RIGHT_DOMINANT_SEGMENTS } from '@/data/arteries'
+import { LEFT_DOMINANT_SEGMENTS } from '@/data/arteries-left-dominant'
+import { CODOMINANT_SEGMENTS } from '@/data/arteries-codominant'
 import type { ArterySegment } from '@/types/anatomy'
 
 const SEGS = RIGHT_DOMINANT_SEGMENTS
@@ -93,15 +96,57 @@ describe('textbook ratings at the standard views (interpolated Di Mario matrix)'
   })
 })
 
-describe('smooth interpolation (no hard snapping)', () => {
-  it('a point between two presets blends rather than jumping', () => {
-    // Halfway between AP straight and AP cranial, mid-LAD score should sit between.
-    const apStraight = computeViewQuality(SEGS, 0, 0).find(e => e.segmentId === 'mid-lad')!
-    const apCranial = computeViewQuality(SEGS, 0, 35).find(e => e.segmentId === 'mid-lad')!
-    // ratings are ordinal; just assert both are valid and the blend midpoint is defined
-    expect(['-', '+', '++', '+++']).toContain(apStraight.rating)
-    expect(['-', '+', '++', '+++']).toContain(apCranial.rating)
-    const mid = computeViewQuality(SEGS, 0, 17).find(e => e.segmentId === 'mid-lad')!
-    expect(['-', '+', '++', '+++']).toContain(mid.rating)
+describe('interpolation: exact at presets, smooth between', () => {
+  it('at a preset the interpolated rating equals the textbook cell (rao-caudal → dist-lad +++)', () => {
+    expect(scoreToRating(interpolateSegmentScore('dist-lad', -25, -25))).toBe('+++')
+    expect(scoreToRating(interpolateSegmentScore('mid-lad', 0, 35))).toBe('+++') // ap-cranial
+    expect(scoreToRating(interpolateSegmentScore('lm', 45, -30))).toBe('+++') // spider
+    expect(scoreToRating(interpolateSegmentScore('prox-rca', 45, 0))).toBe('++') // lao-straight
+  })
+  it('a midpoint score lies between the two preset endpoints (no hard snapping)', () => {
+    const lo = interpolateSegmentScore('mid-lad', 0, 0) // AP straight (mid-lad +)
+    const hi = interpolateSegmentScore('mid-lad', 0, 35) // AP cranial (mid-lad +++)
+    const mid = interpolateSegmentScore('mid-lad', 0, 17)
+    expect(mid).toBeGreaterThan(Math.min(lo, hi))
+    expect(mid).toBeLessThan(Math.max(lo, hi))
+  })
+})
+
+describe('overlap engine (geometry layer)', () => {
+  it('reports overlap between genuinely crossing vessels but NOT for contiguous parent/child', () => {
+    const sampled = sampleSegments(SEGS)
+    // AP straight: the LM/proximal-LAD/proximal-LCx region superimposes (Di Mario).
+    const geo = measureViewGeometry(sampled, 0, 0)
+    // Parent/child (lm → prox-lad) must NOT be reported as overlapping each other.
+    expect(geo.get('prox-lad')!.overlaps).not.toContain('lm')
+    expect(geo.get('lm')!.overlaps).not.toContain('prox-lad')
+    // overlapPct is a valid fraction for every segment.
+    for (const g of geo.values()) {
+      expect(g.overlapPct).toBeGreaterThanOrEqual(0)
+      expect(g.overlapPct).toBeLessThanOrEqual(1)
+    }
+  })
+})
+
+describe('dominance variants grade cleanly', () => {
+  for (const [name, segs] of [
+    ['left-dominant', LEFT_DOMINANT_SEGMENTS],
+    ['codominant', CODOMINANT_SEGMENTS],
+  ] as const) {
+    it(`${name}: every segment gets a valid rating + foreshortening across standard views`, () => {
+      for (const [a, b] of [SPIDER, AP_CRANIAL, LAO_STRAIGHT, LAO_CRANIAL_RCA]) {
+        const entries = computeViewQuality(segs as ArterySegment[], a, b)
+        expect(entries.length).toBe(segs.length)
+        for (const e of entries) {
+          expect(['+++', '++', '+', '-']).toContain(e.rating)
+          expect(e.foreshortenPct!).toBeGreaterThanOrEqual(0)
+          expect(e.foreshortenPct!).toBeLessThanOrEqual(1)
+        }
+      }
+    })
+  }
+  it('left-dominant: PDA arises from the LCx (territory LCx), not the RCA', () => {
+    const pda = LEFT_DOMINANT_SEGMENTS.find(s => s.id === 'pda')!
+    expect(pda.territory).toBe('LCx')
   })
 })

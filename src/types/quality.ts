@@ -9,8 +9,6 @@ export interface ViewQualityEntry {
   foreshortenPct?: number
   /** Geometry-derived overlap fraction, 0 (clear) … 1 (fully obscured). Optional. */
   overlapPct?: number
-  /** True when the grade was computed live from 3D geometry rather than a static table. */
-  computed?: boolean
 }
 
 export interface QualityMatrixEntry {

@@ -225,8 +225,10 @@ for each segment S with polyline points P[0..n]:
   overlap = penalty(min projected centerline distance to neighbors)
   score = w_f · (1 − foreshorten) − w_o · overlap        # then bucket to −/+/++/+++
 ```
-- `project` uses the **same** camera basis as `FluoroCanvas.computeCameraBasis` (unify the two
-  projection code paths onto one source of truth).
+- `project` uses the **same** camera basis (`carm-math.computeCameraBasis`) as the 2D fluoro
+  renderer (`FluoroCanvas`), so those two share one source of truth. (The R3F `Scene2D`/`Scene3D`
+  cameras still derive their position from `anglesToPosition` + Three's own `lookAt`; the viewing
+  *direction* is identical, only their up/roll handling is independent — a candidate future unify.)
 - Validation targets: spider → LM/prox-LAD/prox-LCx high, mid-LAD low; AP cranial → mid/distal
   LAD high; LAO cranial (RCA) → crux/PDA high; RAO caudal → distal-LAD + LCx high.
 

@@ -1,4 +1,4 @@
-import type { QualityMatrixEntry, SegmentRating, ViewQualityEntry } from '@/types/quality'
+import type { QualityMatrixEntry, SegmentRating } from '@/types/quality'
 import { VIEW_PRESETS } from './presets'
 
 /**
@@ -135,50 +135,6 @@ export const QUALITY_MATRIX: QualityMatrixEntry[] = [
     },
   },
 ]
-
-/**
- * Find the quality data for arbitrary angles by finding the nearest preset.
- */
-export function getQualityForAngles(
-  raoLao: number,
-  cranialCaudal: number,
-): QualityMatrixEntry | null {
-  let bestDist = Infinity
-  let bestEntry: QualityMatrixEntry | null = null
-
-  for (const entry of QUALITY_MATRIX) {
-    const preset = VIEW_PRESETS.find(p => p.id === entry.presetId)
-    if (!preset) continue
-    const dist = Math.sqrt(
-      Math.pow(preset.raoLao - raoLao, 2) +
-      Math.pow(preset.cranialCaudal - cranialCaudal, 2)
-    )
-    if (dist < bestDist) {
-      bestDist = dist
-      bestEntry = entry
-    }
-  }
-
-  return bestEntry
-}
-
-/**
- * Convert a quality matrix entry to individual ViewQualityEntry objects.
- */
-export function getSegmentQualities(
-  raoLao: number,
-  cranialCaudal: number,
-): ViewQualityEntry[] {
-  const entry = getQualityForAngles(raoLao, cranialCaudal)
-  if (!entry) return []
-
-  return Object.entries(entry.ratings).map(([segmentId, rating]) => ({
-    segmentId,
-    rating,
-    foreshortened: RATING_SCORE[rating] <= 0,
-    overlaps: entry.overlaps[segmentId] ?? [],
-  }))
-}
 
 export const RATING_SCORE: Record<SegmentRating, number> = { '+++': 3, '++': 2, '+': 1, '-': 0 }
 

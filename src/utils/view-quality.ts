@@ -161,30 +161,40 @@ export function measureViewGeometry(
 }
 
 /**
- * Hybrid per-segment view quality:
+ * Hybrid per-segment view quality from PRE-SAMPLED segments:
  *   • rating  — curated Di Mario reference, smoothly interpolated across presets
  *   • foreshortenPct / overlapPct / overlaps / foreshortened — live from geometry
+ *
+ * Takes `sampled` so callers can memoise the (angle-independent, expensive) spline
+ * sampling once and only re-grade as the angles change.
  */
-export function computeViewQuality(
-  segments: ArterySegment[],
+export function gradeSampledSegments(
+  sampled: SampledSegment[],
   raoLao: number,
   cranialCaudal: number,
 ): ViewQualityEntry[] {
-  const sampled = sampleSegments(segments)
   const geometry = measureViewGeometry(sampled, raoLao, cranialCaudal)
   const scores = interpolateSegmentScores(raoLao, cranialCaudal)
 
-  return segments.map(seg => {
-    const g = geometry.get(seg.id)
-    const score = scores.get(seg.id) ?? 0
+  return sampled.map(s => {
+    const g = geometry.get(s.id)
+    const score = scores.get(s.id) ?? 0
     return {
-      segmentId: seg.id,
+      segmentId: s.id,
       rating: scoreToRating(score),
       foreshortened: (g?.foreshorten ?? 0) >= FORESHORTENED_FLAG,
       overlaps: g?.overlaps ?? [],
       foreshortenPct: g?.foreshorten,
       overlapPct: g?.overlapPct,
-      computed: true,
     }
   })
+}
+
+/** Convenience: sample + grade in one call (samples internally each call). */
+export function computeViewQuality(
+  segments: ArterySegment[],
+  raoLao: number,
+  cranialCaudal: number,
+): ViewQualityEntry[] {
+  return gradeSampledSegments(sampleSegments(segments), raoLao, cranialCaudal)
 }
