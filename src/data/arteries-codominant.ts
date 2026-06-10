@@ -3,13 +3,16 @@ import { VESSEL_COLORS } from './colors'
 import { RIGHT_DOMINANT_SEGMENTS } from './arteries'
 
 /**
- * Co-dominant variant:
- * - PDA from RCA (smaller)
- * - PLV from LCx
- * - LCx extends further posteriorly
+ * Co-dominant (balanced) variant.
+ *
+ * Convention used here (the classical "balanced" scheme): the PDA arises from
+ * the RCA and the posterolateral (PLV) supply from the LCx, with the LCx
+ * extended further posteriorly. (A stricter PDA-origin-only definition treats
+ * codominance as PDA/septum supplied by branches of BOTH vessels; we adopt the
+ * classical scheme consistently across the app. ~7% population prevalence.)
  */
 
-// Extended distal LCx
+// Extended distal LCx (first point matches the prox-LCx terminus for continuity)
 const distLcxCoDom: ArterySegment = {
   id: 'dist-lcx',
   name: 'Distal LCx',
@@ -17,7 +20,7 @@ const distLcxCoDom: ArterySegment = {
   territory: 'LCx',
   parentId: 'prox-lcx',
   controlPoints: [
-    [2.8, 1.2, -0.3],
+    [2.8, 0.6, -0.3],
     [2.8, 0.5, -1.0],
     [2.5, -0.2, -1.5],
     [1.5, -0.8, -2.2],

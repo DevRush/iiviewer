@@ -11,6 +11,7 @@ import { DominanceToggle } from '@/components/controls/DominanceToggle'
 import { ViewModeToggle } from '@/components/controls/ViewModeToggle'
 import { PresetButtons } from '@/components/controls/PresetButtons'
 import { QualityPanel } from '@/components/quality/QualityPanel'
+import { OptimalViewMap } from '@/components/quality/OptimalViewMap'
 
 const TeachingPanel = lazy(() => import('@/components/teaching/TeachingPanel').then(m => ({ default: m.TeachingPanel })))
 const QuizPanel = lazy(() => import('@/components/teaching/QuizPanel').then(m => ({ default: m.QuizPanel })))
@@ -213,14 +214,21 @@ export default function App() {
             </div>
           </div>
 
-          {/* View Quality */}
-          <div className="border-t border-gray-800/30 pt-2">
+          {/* View Quality + Optimal-View map */}
+          <div className="border-t border-gray-800/30 pt-2 flex flex-col lg:flex-row items-center justify-center gap-4 flex-wrap">
             <QualityPanel
               raoLao={angles.raoLao}
               cranialCaudal={angles.cranialCaudal}
               segments={segments}
               hoveredSegmentId={hoveredSegmentId}
               onHoverSegment={setHoveredSegmentId}
+            />
+            <OptimalViewMap
+              segments={segments}
+              segmentId={selectedSegmentId ?? hoveredSegmentId}
+              raoLao={angles.raoLao}
+              cranialCaudal={angles.cranialCaudal}
+              onPick={(rl, cc) => animateTo({ raoLao: rl, cranialCaudal: cc })}
             />
           </div>
         </div>

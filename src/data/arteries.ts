@@ -17,8 +17,9 @@ import { VESSEL_COLORS } from './colors'
  *
  * Key anatomical landmarks:
  *   Aortic root: approximately (0, 2.0, 1.0) — superior-anterior-central
- *   Left coronary ostium: (0.5, 1.8, 1.5)
- *   Right coronary ostium: (-0.5, 1.8, 1.5)
+ *   Left coronary ostium: (0.5, 1.8, 1.4) — left (left-posterior) aortic sinus
+ *   Right coronary ostium: (-0.5, 1.8, 1.7) — right (anterior) sinus, slightly more anterior
+ *   (the right sinus is anterior to the left, so the RCA ostium sits at higher +z)
  *   LM bifurcation: (1.2, 1.4, 1.8)
  *   Cardiac apex: (2.0, -3.5, 2.0) — left, inferior, anterior
  *   Crux (posterior IV/AV groove junction): (-0.5, -1.5, -2.5)
@@ -40,7 +41,7 @@ export const RIGHT_DOMINANT_SEGMENTS: ArterySegment[] = [
     territory: 'LM',
     parentId: null,
     controlPoints: [
-      [0.5, 1.8, 1.5],     // LCA ostium (left coronary sinus, aortic root)
+      [0.5, 1.8, 1.4],     // LCA ostium (left / left-posterior coronary sinus)
       [0.9, 1.6, 1.7],     // Mid LM, coursing leftward
       [1.2, 1.4, 1.8],     // LM bifurcation point
     ],
@@ -245,7 +246,7 @@ export const RIGHT_DOMINANT_SEGMENTS: ArterySegment[] = [
     territory: 'RCA',
     parentId: null,
     controlPoints: [
-      [-0.5, 1.8, 1.5],    // RCA ostium (right coronary sinus, aortic root)
+      [-0.5, 1.8, 1.7],    // RCA ostium (right / anterior coronary sinus — anterior to LM ostium)
       [-1.2, 1.5, 1.5],    // Courses rightward and anteriorly
       [-2.0, 1.0, 1.2],    // In right AV groove
       [-2.5, 0.5, 0.8],    // Descending along right heart border

@@ -3,7 +3,10 @@
 @tailwind utilities;
 
 html, body, #root {
-  height: 100%;
+  /* min-height (not height) so the page can grow and SCROLL on mobile, where the
+     stacked panels + control bar exceed one viewport. On desktop the root sets
+     lg:h-screen explicitly, so the full-height flex layout is unaffected. */
+  min-height: 100%;
   margin: 0;
   overflow-x: hidden;
   overscroll-behavior: none;

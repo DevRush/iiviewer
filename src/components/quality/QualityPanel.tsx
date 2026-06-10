@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import type { ArterySegment } from '@/types/anatomy'
 import type { SegmentRating } from '@/types/quality'
-import { getSegmentQualities } from '@/data/quality-matrix'
+import { computeViewQuality } from '@/utils/view-quality'
 
 interface QualityPanelProps {
   raoLao: number
@@ -33,14 +33,21 @@ export function QualityPanel({
   onHoverSegment,
 }: QualityPanelProps) {
   const qualities = useMemo(
-    () => getSegmentQualities(raoLao, cranialCaudal),
-    [raoLao, cranialCaudal],
+    () => computeViewQuality(segments, raoLao, cranialCaudal),
+    [segments, raoLao, cranialCaudal],
   )
 
   const qualityMap = useMemo(() => {
-    const map = new Map<string, { rating: SegmentRating; overlaps: string[] }>()
+    const map = new Map<
+      string,
+      { rating: SegmentRating; overlaps: string[]; foreshortenPct?: number }
+    >()
     for (const q of qualities) {
-      map.set(q.segmentId, { rating: q.rating, overlaps: q.overlaps })
+      map.set(q.segmentId, {
+        rating: q.rating,
+        overlaps: q.overlaps,
+        foreshortenPct: q.foreshortenPct,
+      })
     }
     return map
   }, [qualities])
@@ -86,7 +93,7 @@ function QualityGroup({
 }: {
   label: string
   segments: ArterySegment[]
-  qualityMap: Map<string, { rating: SegmentRating; overlaps: string[] }>
+  qualityMap: Map<string, { rating: SegmentRating; overlaps: string[]; foreshortenPct?: number }>
   hoveredSegmentId: string | null
   onHoverSegment: (id: string | null) => void
 }) {
@@ -107,7 +114,11 @@ function QualityGroup({
               onMouseEnter={() => onHoverSegment(s.id)}
               onMouseLeave={() => onHoverSegment(null)}
               onClick={() => onHoverSegment(hoveredSegmentId === s.id ? null : s.id)}
-              title={`${s.name}: ${rating}${q?.overlaps.length ? ` (overlaps: ${q.overlaps.join(', ')})` : ''}`}
+              title={`${s.name}: ${rating}${
+                q?.foreshortenPct != null
+                  ? ` — ${Math.round(q.foreshortenPct * 100)}% foreshortened`
+                  : ''
+              }${q?.overlaps.length ? ` (overlaps: ${q.overlaps.join(', ')})` : ''}`}
             >
               <span className="text-gray-400">{s.shortName}</span>
               <span className={`ml-1 font-mono font-bold ${ratingColors[rating]}`}>

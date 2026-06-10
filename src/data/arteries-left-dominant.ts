@@ -3,11 +3,11 @@ import { VESSEL_COLORS } from './colors'
 import { RIGHT_DOMINANT_SEGMENTS } from './arteries'
 
 /**
- * Left-dominant variant:
- * - PDA arises from LCx instead of RCA
- * - PLV arises from LCx
- * - RCA is shorter (terminates before crux)
- * - LCx extends further posteriorly
+ * Left-dominant variant (~8% population prevalence).
+ * - PDA arises from the LCx instead of the RCA (dominance = vessel giving off the PDA)
+ * - PLV (posterolateral) arises from the LCx
+ * - RCA is shorter and terminates before the crux (does not reach it)
+ * - LCx extends further posteriorly, around the crux, into the posterior IV groove
  */
 
 // Override distal RCA to terminate earlier (before crux)
@@ -36,7 +36,7 @@ const distLcxLeftDom: ArterySegment = {
   territory: 'LCx',
   parentId: 'prox-lcx',
   controlPoints: [
-    [2.8, 1.2, -0.3],
+    [2.8, 0.6, -0.3],   // Matches prox-LCx terminus (continuity)
     [2.8, 0.5, -1.0],
     [2.5, -0.2, -1.5],
     [1.5, -0.8, -2.2],

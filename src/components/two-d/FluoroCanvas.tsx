@@ -2,6 +2,7 @@ import { useRef, useEffect, useCallback, useMemo } from 'react'
 import * as THREE from 'three'
 import type { ArterySegment } from '@/types/anatomy'
 import { buildArterySpline, ANATOMY_SCALE } from '@/utils/geometry'
+import { computeCameraBasis } from '@/utils/carm-math'
 import {
   drawBackground,
   drawNoiseLayer,
@@ -40,7 +41,6 @@ interface ProjectedSegment {
 const DPR_MAX = 2
 const SAMPLES_PER_CURVE = 50
 const HIT_THRESHOLD = 12
-const DEG2RAD = Math.PI / 180
 const ZOOM = 50
 
 function distToLineSegment(
@@ -78,39 +78,6 @@ function findNearestSegment(
     }
   }
   return nearest
-}
-
-/** Compute orthographic camera basis vectors from C-arm angles */
-function computeCameraBasis(raoLao: number, cranialCaudal: number) {
-  const alpha = raoLao * DEG2RAD
-  const beta = cranialCaudal * DEG2RAD
-
-  // Camera position (spherical coords)
-  const camX = Math.sin(alpha) * Math.cos(beta)
-  const camY = Math.sin(beta)
-  const camZ = Math.cos(alpha) * Math.cos(beta)
-
-  // Forward = -normalize(camera)
-  const fx = -camX, fy = -camY, fz = -camZ
-
-  // World up — handle poles
-  let ux = 0, uy = 1, uz = 0
-  const dotFU = fx * ux + fy * uy + fz * uz
-  if (Math.abs(dotFU) > 0.999) { ux = 0; uy = 0; uz = -1 }
-
-  // Right = forward × worldUp
-  let rx = fy * uz - fz * uy
-  let ry = fz * ux - fx * uz
-  let rz = fx * uy - fy * ux
-  const rLen = Math.sqrt(rx * rx + ry * ry + rz * rz)
-  rx /= rLen; ry /= rLen; rz /= rLen
-
-  // Up = right × forward
-  const upx = ry * fz - rz * fy
-  const upy = rz * fx - rx * fz
-  const upz = rx * fy - ry * fx
-
-  return { rx, ry, rz, upx, upy, upz }
 }
 
 export function FluoroCanvas({
@@ -224,7 +191,7 @@ export function FluoroCanvas({
     drawBackground(ctx, width, height)
 
     // 2. Project and draw vessels
-    const { rx, ry, rz, upx, upy, upz } = computeCameraBasis(rl, cc)
+    const { right: [rx, ry, rz], up: [upx, upy, upz] } = computeCameraBasis(rl, cc)
     const cx = width / 2
     const cy = height / 2
     const jitter = doRealism ? Math.sin(timestamp * 0.004) * 0.45 : 0
