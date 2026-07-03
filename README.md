@@ -2,9 +2,7 @@
 
 **Coronary angiography view simulator — a 3D heart model with a live 2D fluoroscopy projection.**
 
-Learning to read coronary angiograms means learning how a 3D coronary tree collapses into 2D fluoro views (LAO/RAO, cranial/caudal). This simulator puts both side by side: rotate a 3D coronary anatomy model and watch the corresponding angiographic projection update in real time, so the mapping between gantry angles and what you see on screen becomes intuitive.
-
-Part of the projects at [annasrahman.com](https://annasrahman.com).
+The hardest part of learning angiography isn't the anatomy, it's the projection: figuring out how a 3D coronary tree collapses into whatever 2D view the gantry is giving you. This simulator puts both side by side. Rotate the heart, and the fluoro view follows in real time, until "LAO caudal" stops being an incantation and starts being a direction you can picture.
 
 ## Features
 
@@ -38,4 +36,6 @@ npm run build       # production build
 
 ## Disclaimer
 
-Educational tool only — not for clinical use.
+For learning, not for the lab. Educational tool only — not for clinical use.
+
+More projects at [annasrahman.com](https://annasrahman.com).
