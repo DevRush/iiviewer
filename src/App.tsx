@@ -54,6 +54,9 @@ export default function App() {
           <h1 className="text-lg font-bold tracking-tight">
             <span className="text-indigo-400">II</span>views
           </h1>
+          <span className="text-xs font-bold uppercase tracking-widest text-white bg-indigo-600 rounded-md px-2 py-0.5 shadow-sm">
+            Beta
+          </span>
           <span className="text-xs text-gray-500 hidden sm:inline">
             Coronary Angiography View Simulator
           </span>
