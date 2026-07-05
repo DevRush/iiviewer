@@ -234,6 +234,16 @@ export default function App() {
               onPick={(rl, cc) => animateTo({ raoLao: rl, cranialCaudal: cc })}
             />
           </div>
+
+          {/* 3D heart model attribution — required by its CC BY 4.0 license */}
+          <div className="text-center text-[9px] leading-relaxed text-gray-600">
+            Heart model:{' '}
+            <a href="https://sketchfab.com/3d-models/realistic-human-heart-3f8072336ce94d18b3d0d055a1ece089" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-400">&ldquo;Realistic Human Heart&rdquo;</a>{' '}
+            by{' '}
+            <a href="https://sketchfab.com/neshallads" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-400">neshallads</a>,{' '}
+            licensed{' '}
+            <a href="http://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer" className="underline hover:text-gray-400">CC BY 4.0</a>
+          </div>
         </div>
       </div>
     </div>
